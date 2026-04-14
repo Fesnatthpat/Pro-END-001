@@ -1,7 +1,21 @@
 <template>
   <div class="w-full font-['Prompt']">
     
-    <div v-if="isApproved" class="bg-white rounded-[20px] shadow-[0_4px_25px_rgba(0,0,0,0.05)] p-8 md:p-12 max-w-[850px] mx-auto my-10">
+    <!-- ส่วนหัวต้อนรับ (แสดงข้อมูลผู้ใช้) -->
+    <div v-if="user" class="max-w-[850px] mx-auto mt-10 mb-6 px-4">
+      <div class="bg-white rounded-[20px] shadow-[0_4px_25px_rgba(0,0,0,0.05)] p-6 flex items-center gap-6 border border-gray-100">
+        <div class="w-20 h-20 rounded-full bg-indigo-50 border-4 border-white shadow-sm overflow-hidden shrink-0 flex items-center justify-center">
+          <img v-if="user.profileImage" :src="user.profileImage" alt="Profile" class="w-full h-full object-cover">
+          <i v-else class="bi bi-person-fill text-4xl text-indigo-200"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold text-[#1a1a40]">สวัสดีครับ, {{ user.fullname }}</h2>
+          <p class="text-gray-500">ยินดีต้อนรับกลับสู่ระบบจัดการโครงงานคอมพิวเตอร์</p>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="isApproved" class="bg-white rounded-[20px] shadow-[0_4px_25px_rgba(0,0,0,0.05)] p-8 md:p-12 max-w-[850px] mx-auto mb-10 border border-gray-100">
       <div class="text-center mb-12 border-b border-gray-100 pb-8">
         <h3 class="font-bold text-[28px] text-[#1a1a40] mb-2">สถานะการดำเนินงาน</h3>
         <p class="text-gray-500 text-sm">ติดตามความคืบหน้าโครงงานคอมพิวเตอร์ของคุณ</p>
@@ -63,6 +77,15 @@ import { ref, computed } from 'vue'
 
 useHead({
   title: 'สถานะการดำเนินงาน | โครงงานของฉัน'
+})
+
+// ดึงข้อมูลผู้ใช้จาก Cookie
+const userCookie = useCookie('user_session')
+const user = computed(() => userCookie.value)
+
+// บังคับใช้ Layout ของนักศึกษา
+definePageMeta({
+  layout: 'student'
 })
 
 // ================= เปิดให้ผ่านทุกด่านเพื่อทดสอบ UI =================

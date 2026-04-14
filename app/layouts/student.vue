@@ -42,11 +42,12 @@
 
           <div class="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-3 w-full lg:w-auto shrink-0">
             
-            <NuxtLink to="/student/profile" class="hidden lg:flex items-center gap-[10px] text-white bg-white/10 hover:bg-white/20 cursor-pointer transition-colors duration-300 pr-[18px] pl-[6px] py-[6px] rounded-full no-underline">
-              <div class="w-[32px] h-[32px] bg-white text-[#1a1a40] rounded-full flex items-center justify-center font-bold text-[0.9rem]">
-                น
+            <NuxtLink v-if="user" to="/student/profile" class="hidden lg:flex items-center gap-[10px] text-white bg-white/10 hover:bg-white/20 cursor-pointer transition-colors duration-300 pr-[18px] pl-[6px] py-[6px] rounded-full no-underline">
+              <div class="w-[32px] h-[32px] bg-white text-[#1a1a40] rounded-full flex items-center justify-center font-bold text-[0.9rem] overflow-hidden">
+                <img v-if="user.profileImage" :src="user.profileImage" alt="Profile" class="w-full h-full object-cover">
+                <span v-else>{{ user.fullname?.charAt(0) || 'U' }}</span>
               </div>
-              <span class="text-[0.95rem] font-medium">นางสาวตัวอย่าง ใจดี</span>
+              <span class="text-[0.95rem] font-medium">{{ user.fullname }}</span>
             </NuxtLink>
 
             <button @click="handleLogout" class="flex items-center gap-2 text-white border border-white/30 hover:bg-[#dc3545] hover:border-[#dc3545] px-[20px] py-[8px] rounded-full text-[0.9rem] font-medium transition-colors duration-300 w-fit cursor-pointer">
@@ -112,23 +113,20 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router"; // ดึง useRouter มาใช้สำหรับเปลี่ยนหน้า
-
-const router = useRouter(); // ประกาศใช้งาน router
+import { ref, computed } from "vue";
+const router = useRouter();
 const isMenuOpen = ref(false);
 const isApproved = ref(true);
 
+const userCookie = useCookie('user_session')
+const user = computed(() => userCookie.value)
+
 // 🌟 ฟังก์ชันจัดการตอนกดปุ่มออกจากระบบ 🌟
 const handleLogout = () => {
-  // มีกล่องยืนยันเด้งขึ้นมาถามก่อน
   if (confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-    
-    // TODO: [สำหรับเพื่อนทำ Backend] 
-    // เขียนโค้ดล้าง Session, ล้าง Token ใน localStorage หรือยิง API Logout ตรงนี้ได้เลย
-    // ตัวอย่าง: localStorage.removeItem('user_token');
-
-    // พอล้างข้อมูลเสร็จ ก็เตะกลับไปหน้า Login
+    // ล้างข้อมูล Session ใน Cookie
+    userCookie.value = null
+    // เตะกลับไปหน้า Login
     router.push('/login');
   }
 };

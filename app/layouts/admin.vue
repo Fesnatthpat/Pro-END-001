@@ -3,13 +3,13 @@
     
     <aside class="w-[260px] bg-gradient-to-b from-[#0f0c29] to-[#302b63] text-white flex flex-col shadow-[4px_0_15px_rgba(0,0,0,0.1)] shrink-0 hidden lg:flex sticky top-0 h-screen">
       
-      <div class="p-8 border-b border-white/10 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-full bg-white text-[#0f0c29] flex items-center justify-center font-bold text-xl shadow-inner shrink-0">
-          A
+      <div v-if="admin" class="p-8 border-b border-white/10 flex items-center gap-4">
+        <div class="w-12 h-12 rounded-full bg-white text-[#0f0c29] flex items-center justify-center font-bold text-xl shadow-inner shrink-0 overflow-hidden">
+          {{ admin.fullname?.charAt(0) || 'A' }}
         </div>
         <div class="overflow-hidden">
-          <span class="block font-bold truncate text-[15px]">Admin System</span>
-          <span class="text-white/50 text-xs">Administrator</span>
+          <span class="block font-bold truncate text-[15px]">{{ admin.fullname }}</span>
+          <span class="text-white/50 text-xs uppercase">{{ admin.role }}</span>
         </div>
       </div>
 
@@ -17,6 +17,11 @@
         <NuxtLink to="/admin" exact-active-class="bg-white !text-[#0f0c29] font-bold shadow-lg" class="flex items-center gap-3 text-[#b8c6db] hover:text-white hover:bg-white/10 px-4 py-3 rounded-xl transition-all duration-300 group">
           <i class="bi bi-grid-fill text-lg w-6 text-center group-hover:scale-110 transition-transform"></i>
           <span class="text-sm">Dashboard</span>
+        </NuxtLink>
+
+        <NuxtLink to="/admin/students/approve" exact-active-class="bg-white !text-[#0f0c29] font-bold shadow-lg" class="flex items-center gap-3 text-[#b8c6db] hover:text-white hover:bg-white/10 px-4 py-3 rounded-xl transition-all duration-300 group">
+          <i class="bi bi-person-fill-add text-lg w-6 text-center group-hover:scale-110 transition-transform"></i>
+          <span class="text-sm">อนุมัตินักศึกษาใหม่</span>
         </NuxtLink>
 
         <NuxtLink to="/admin/exam-topic" exact-active-class="bg-white !text-[#0f0c29] font-bold shadow-lg" class="flex items-center gap-3 text-[#b8c6db] hover:text-white hover:bg-white/10 px-4 py-3 rounded-xl transition-all duration-300 group">
@@ -65,13 +70,14 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
-
+import { computed } from 'vue'
 const router = useRouter()
+const adminCookie = useCookie('user_session')
+const admin = computed(() => adminCookie.value)
 
 const handleLogout = () => {
   if (confirm("คุณต้องการออกจากระบบ Admin ใช่หรือไม่?")) {
-    // TODO: Clear Admin Session/Token
+    adminCookie.value = null
     router.push('/login')
   }
 }

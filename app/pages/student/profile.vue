@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-['Kanit',_sans-serif] text-slate-800">
-    <div class="max-w-[900px] mx-auto w-full">
+    <div v-if="user" class="max-w-[900px] mx-auto w-full">
       
       <div class="mb-6">
         <NuxtLink to="/student" class="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 bg-white px-4 py-2 rounded-full shadow-sm border border-slate-200 transition-all text-sm font-bold w-fit hover:-translate-x-1">
@@ -28,11 +28,16 @@
         <div class="md:col-span-1 space-y-6">
           <div class="bg-white rounded-[32px] p-8 shadow-sm border border-slate-200 text-center relative overflow-hidden">
             <div class="absolute top-0 left-0 w-full h-2 bg-indigo-600"></div>
-            <div class="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white shadow-md">
-              {{ student.name.substring(0, 2) }}
+            
+            <div v-if="user.profileImage" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white shadow-md overflow-hidden">
+              <img :src="user.profileImage" alt="Profile" class="w-full h-full object-cover">
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-1">{{ student.name }}</h3>
-            <p class="text-slate-400 text-sm font-medium mb-6">รหัส: {{ student.id }}</p>
+            <div v-else class="w-24 h-24 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl font-bold mx-auto mb-4 border-4 border-white shadow-md">
+              {{ user.fullname?.substring(0, 1) }}
+            </div>
+
+            <h3 class="text-xl font-bold text-slate-900 mb-1">{{ user.fullname }}</h3>
+            <p class="text-slate-400 text-sm font-medium mb-6">รหัส: {{ user.username }}</p>
             
             <div class="inline-block bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-full text-xs font-bold border border-emerald-100">
               <i class="bi bi-shield-check mr-1"></i> นักศึกษาปัจจุบัน
@@ -43,10 +48,10 @@
             <i class="bi bi-code-square absolute -right-4 -bottom-4 text-6xl opacity-10"></i>
             <h4 class="text-sm font-bold text-indigo-300 mb-4 uppercase tracking-wider">โครงงานของฉัน</h4>
             <p class="text-[15px] font-medium leading-relaxed mb-4">
-              {{ student.projectTitle }}
+              {{ user.projectTitle || 'ยังไม่มีข้อมูลโครงงาน' }}
             </p>
             <div class="text-xs text-indigo-200 flex items-center gap-2">
-              <i class="bi bi-person-workspace"></i> ที่ปรึกษา: {{ student.advisor }}
+              <i class="bi bi-person-workspace"></i> ที่ปรึกษา: {{ user.advisor || '-' }}
             </div>
           </div>
         </div>
@@ -62,11 +67,11 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">ชื่อ-นามสกุล</label>
-                  <input type="text" :value="student.name" disabled class="w-full bg-slate-50 border border-slate-200 text-slate-500 text-sm rounded-2xl px-4 py-3 outline-none cursor-not-allowed">
+                  <input type="text" :value="user.fullname" disabled class="w-full bg-slate-50 border border-slate-200 text-slate-500 text-sm rounded-2xl px-4 py-3 outline-none cursor-not-allowed">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">รหัสนักศึกษา</label>
-                  <input type="text" :value="student.id" disabled class="w-full bg-slate-50 border border-slate-200 text-slate-500 text-sm rounded-2xl px-4 py-3 outline-none cursor-not-allowed">
+                  <input type="text" :value="user.username" disabled class="w-full bg-slate-50 border border-slate-200 text-slate-500 text-sm rounded-2xl px-4 py-3 outline-none cursor-not-allowed">
                 </div>
               </div>
 
@@ -77,7 +82,7 @@
                   <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">เบอร์โทรศัพท์ติดต่อ</label>
                   <div class="relative">
                     <i class="bi bi-telephone absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" v-model="student.tel" :disabled="!isEditing" 
+                    <input type="text" v-model="user.tel" :disabled="!isEditing" 
                            :class="isEditing ? 'bg-white border-indigo-200 focus:ring-4 focus:ring-indigo-500/10' : 'bg-slate-50 border-slate-200'"
                            class="w-full border text-sm font-medium text-slate-700 rounded-2xl pl-11 pr-4 py-3 outline-none transition-all">
                   </div>
@@ -87,7 +92,7 @@
                   <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">อีเมล (Email)</label>
                   <div class="relative">
                     <i class="bi bi-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="email" v-model="student.email" :disabled="!isEditing" 
+                    <input type="email" v-model="user.email" :disabled="!isEditing" 
                            :class="isEditing ? 'bg-white border-indigo-200 focus:ring-4 focus:ring-indigo-500/10' : 'bg-slate-50 border-slate-200'"
                            class="w-full border text-sm font-medium text-slate-700 rounded-2xl pl-11 pr-4 py-3 outline-none transition-all">
                   </div>
@@ -97,7 +102,7 @@
                   <label class="block text-xs font-bold text-slate-400 uppercase mb-2 ml-1">LINE ID</label>
                   <div class="relative">
                     <i class="bi bi-line absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" v-model="student.line" :disabled="!isEditing" 
+                    <input type="text" v-model="user.lineId" :disabled="!isEditing" 
                            :class="isEditing ? 'bg-white border-indigo-200 focus:ring-4 focus:ring-indigo-500/10' : 'bg-slate-50 border-slate-200'"
                            class="w-full border text-sm font-medium text-slate-700 rounded-2xl pl-11 pr-4 py-3 outline-none transition-all">
                   </div>
@@ -129,7 +134,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 useHead({
   title: 'My Profile | Student Panel',
@@ -144,20 +149,12 @@ definePageMeta({
 })
 
 const isEditing = ref(false)
-
-// ข้อมูลจำลองของนักศึกษา
-const student = ref({
-  id: '6611223344',
-  name: 'นางสาวตัวอย่าง ใจดี',
-  tel: '081-234-5678',
-  email: 'example.student@bsru.ac.th',
-  line: 'jaidee_student',
-  projectTitle: 'ระบบบริหารจัดการโครงงานคอมพิวเตอร์แบบครบวงจร',
-  advisor: 'อ.ธีรพัฒน์ ใจดี'
-})
+const userCookie = useCookie('user_session')
+const user = computed(() => userCookie.value)
 
 const saveProfile = () => {
-  alert('บันทึกข้อมูลสำเร็จแล้ว!')
+  // TODO: Implement actual API call to update profile
+  alert('บันทึกข้อมูลสำเร็จแล้ว! (ในระบบจริงจะยิง API เพื่ออัปเดต Database)')
   isEditing.value = false
 }
 </script>

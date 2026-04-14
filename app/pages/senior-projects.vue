@@ -121,6 +121,10 @@
 <script setup>
 import { ref, computed } from "vue";
 
+definePageMeta({
+  layout: "student",
+});
+
 useHead({
   title: "ทำเนียบโครงงานรุ่นพี่",
 });

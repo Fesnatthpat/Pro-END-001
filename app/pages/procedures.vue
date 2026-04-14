@@ -210,6 +210,10 @@
 <script setup>
 import { ref } from 'vue'
 
+definePageMeta({
+  layout: 'student'
+})
+
 useHead({
   title: 'ขั้นตอนการทำโครงงาน'
 })
